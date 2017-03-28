@@ -21,7 +21,17 @@ function get_sharedstrings(file::String)
       xroot = root(xdoc)  # an instance of XMLElement
       shared = []
       for si in get_elements_by_tagname(xroot, "si")
-        push!(shared, content(find_element(si, "t")))
+          t = find_element(si, "t")
+          if t != nothing
+              push!(shared, content(t))
+          else
+              rs = get_elements_by_tagname(si, "r")
+              res = ""
+              for r in rs
+                  res *= content(find_element(r, "t"))
+              end
+              push!(shared, res)
+          end
       end
   end
   return(shared)
