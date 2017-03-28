@@ -24,5 +24,11 @@ ddf = readxlsx("datasets/testsets.xlsx", "dates")
 
 #Test shared string with format
 sdf = readxlsx("datasets/testsets.xlsx", "sharedstrings")
+@test sdf == readxlsx("datasets/testsets.xlsx", 4)
 @test names(sdf) == [:x1col, :x2col, :x3col]
 @test Array(sdf[1,:])[1,:] == ["string", "style", "text"]
+
+#Test booleans, empty cols and NA header
+#using XLSXReader; b = readxlsx("test/datasets/testsets.xlsx", "booleans")
+bdf = readxlsx("datasets/testsets.xlsx", "booleans")
+@test names(bdf) == Symbol[:boolcol, :x1, :moredata]
