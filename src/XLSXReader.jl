@@ -4,7 +4,7 @@ using ZipFile, LightXML, DataArrays, DataFrames
 
 immutable WorkSheet
     name::String
-    id::Int64
+    idx::Int64
 end
 
 export readxlsx
@@ -62,9 +62,10 @@ function get_worksheets(file::String)
     sheets = get_elements_by_tagname(sheets, "sheet")
 
     wsheets = WorkSheet[]
+    idx = 1
     for sheet in sheets
-        sid = parse(Int64, attribute(sheet, "sheetId"))
-        push!(wsheets, WorkSheet(attribute(sheet, "name"), sid))
+        push!(wsheets, WorkSheet(attribute(sheet, "name"), idx))
+        idx += 1
     end
     free(wbook)
     return(wsheets)
@@ -135,7 +136,7 @@ function readxlsx(file::String, sheet::String; header = true, skip = 0)
     shared_strings = get_sharedstrings(file)
     styles = get_styles(file)
 
-    sid = filter(x -> x.name == sheet, wsheets)[1].id
+    sid = filter(x -> x.name == sheet, wsheets)[1].idx
     xdoc = xlsx_parsexml(file, "xl/worksheets/sheet$sid.xml")
     xroot = root(xdoc)  # an instance of XMLElement
     rows = find_element(xroot, "sheetData")
