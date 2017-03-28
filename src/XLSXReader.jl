@@ -7,7 +7,7 @@ immutable WorkSheet
     id::Int64
 end
 
-export read_xlsx
+export readxlsx
 
 #sheets = filter(x-> contains(x, "xl/worksheets/"), fnames)
 function get_sharedstrings(file::String)
@@ -125,12 +125,12 @@ function readrow(row, shared_strings, styles)
   return(res, maxcol)
 end
 
-function read_xlsx(file::String, sheet::Int=1; header = true, skip = 0)
+function readxlsx(file::String, sheet::Int=1; header = true, skip = 0)
     wsheets = get_worksheets(file)
-    read_xlsx(file, wsheets[sheet].name, header = header, skip = skip)
+    readxlsx(file, wsheets[sheet].name, header = header, skip = skip)
 end
 
-function read_xlsx(file::String, sheet::String; header = true, skip = 0)
+function readxlsx(file::String, sheet::String; header = true, skip = 0)
     wsheets = get_worksheets(file)
     shared_strings = get_sharedstrings(file)
     styles = get_styles(file)
