@@ -101,11 +101,17 @@ end
 function readrow(row, shared_strings, styles)
   res = Dict()
   maxcol = 1
+  mincol = 0
   # Iterate cols from a row
   for c in collect(child_elements(row))
     cr = attribute(c, "r") #Column and row
     col = replace(cr, r"[0-9]", "") #Just column
     value = ""
+    if mincol == 0
+        mincol = colnum(col)
+    else
+        mincol = min(mincol, colnum(col))
+    end
     maxcol = max(maxcol, colnum(col))
     if has_children(c)
         if !has_attribute(c, "t")
@@ -123,7 +129,7 @@ function readrow(row, shared_strings, styles)
 
     res[col] = value
   end
-  return(res, maxcol)
+  return(res, maxcol, mincol)
 end
 
 function readxlsx(file::String, sheet::Int=1; header = true, skip = 0)
@@ -143,14 +149,23 @@ function readxlsx(file::String, sheet::String; header = true, skip = 0)
 
     rowres = []
     maxcol = 1
+    mincol = 0
     for row in child_elements(rows)
-        vals, rowmax = readrow(row, shared_strings, styles)
+        vals, rowmax, rowmin = readrow(row, shared_strings, styles)
         push!(rowres, vals)
         maxcol = max(maxcol, rowmax)
+        if mincol == 0
+            mincol = rowmin
+        else
+            mincol = min(mincol, rowmin)
+        end
     end
+
+    isempty(rowres) && return DataFrame()
+
     free(xdoc)
-    wsarray = ws2array(rowres, maxcol)
-    df = wsarray2df(wsarray, skip = skip, header = header)
+    wsarray = ws2array(rowres, mincol, maxcol, skip)
+    df = wsarray2df(wsarray, header)
     return(df)
 end
 
@@ -164,14 +179,17 @@ function colnum(col::AbstractString)
     return r
 end
 
-function ws2array(cells, ncols::Int)
+function ws2array(cells, mincol::Int, maxcol::Int, skip::Int = 0)
     n = length(cells)
-    wsarray = DataArray(Any, n, ncols)
-    for i in 1:n
+    ncols = 1 + maxcol - mincol
+    wsarray = DataArray(Any, n - skip, ncols)
+    j = 1
+    for i in (skip+1):n
         row = cells[i]
         for k in keys(row)
-            wsarray[i, colnum(k)] = row[k]
+            wsarray[j, colnum(k)-mincol+1] = row[k]
         end
+        j += 1
     end
     return wsarray
 end
@@ -186,18 +204,18 @@ function make_colname(name::String)
     return Symbol(name)
 end
 
-function wsarray2df(wsarray; skip::Int = 0, header::Bool = true)
-    df = DataFrame()
+function wsarray2df(wsarray, header::Bool = true)
     ncols = size(wsarray)[2]
 
+    df = DataFrame()
     if header
-        colnames = make_colname.(wsarray[1+skip,:])
+        colnames = make_colname.(wsarray[1,:])
     else
         colnames = Symbol.(["x"] .* string.(1:ncols))
     end
 
     for i in 1:ncols
-        df[colnames[i]] = wsarray[(1+skip+Int(header):end) ,i]
+        df[colnames[i]] = wsarray[(1+Int(header):end) ,i]
     end
     return df
 end
