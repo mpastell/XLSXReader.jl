@@ -1,5 +1,4 @@
-using XLSXReader
+using XLSXReader, RDatasets
 using Base.Test
 
-# write your own tests here
-@test 1 == 2
+@test read_xlsx("datasets/mtcars.xlsx") == dataset("datasets", "mtcars")
