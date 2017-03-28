@@ -125,36 +125,32 @@ function readrow(row, shared_strings, styles)
   return(res, maxcol)
 end
 
-function read_xlsx(file::String, sheet::Int; header = true, skip = 0)
+function read_xlsx(file::String, sheet::Int=1; header = true, skip = 0)
     wsheets = get_worksheets(file)
     read_xlsx(file, wsheets[sheet].name, header = header, skip = skip)
 end
 
-function read_xlsx(file::String, sheet::String = ""; header = true, skip = 0)
-    if isempty(sheet)
-        sid = 1
-    else
-        wsheets = get_worksheets(file)
-        sid = filter(x -> x.name == sheet, wsheets)[1].id
+function read_xlsx(file::String, sheet::String; header = true, skip = 0)
+    wsheets = get_worksheets(file)
+    shared_strings = get_sharedstrings(file)
+    styles = get_styles(file)
+
+    sid = filter(x -> x.name == sheet, wsheets)[1].id
+    xdoc = xlsx_parsexml(file, "xl/worksheets/sheet$sid.xml")
+    xroot = root(xdoc)  # an instance of XMLElement
+    rows = find_element(xroot, "sheetData")
+
+    rowres = []
+    maxcol = 1
+    for row in child_elements(rows)
+        vals, rowmax = readrow(row, shared_strings, styles)
+        push!(rowres, vals)
+        maxcol = max(maxcol, rowmax)
     end
-
-  shared_strings = get_sharedstrings(file)
-  styles = get_styles(file)
-
-  xdoc = xlsx_parsexml(file, "xl/worksheets/sheet$sid.xml")
-  xroot = root(xdoc)  # an instance of XMLElement
-  rows = find_element(xroot, "sheetData")
-
-  rowres = []
-  maxcol = 1
-  for row in child_elements(rows)
-    vals, rowmax = readrow(row, shared_strings, styles)
-    push!(rowres, vals)
-    maxcol = max(maxcol, rowmax)
-  end
-  wsarray = ws2array(rowres, maxcol)
-  df = wsarray2df(wsarray, skip = skip, header = header)
-  return(df)
+    free(xdoc)
+    wsarray = ws2array(rowres, maxcol)
+    df = wsarray2df(wsarray, skip = skip, header = header)
+    return(df)
 end
 
 #From ExcelReaders.jl
