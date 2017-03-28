@@ -7,6 +7,9 @@ immutable WorkSheet
     idx::Int64
 end
 
+#Used as return value for cells with unsupported type
+immutable UnsupportedCell end
+
 export readxlsx
 
 #sheets = filter(x-> contains(x, "xl/worksheets/"), fnames)
@@ -98,6 +101,7 @@ function formatcell(c, styles)
     end
 end
 
+
 function readrow(row, shared_strings, styles)
   res = Dict()
   maxcol = 1
@@ -106,7 +110,7 @@ function readrow(row, shared_strings, styles)
   for c in collect(child_elements(row))
     cr = attribute(c, "r") #Column and row
     col = replace(cr, r"[0-9]", "") #Just column
-    value = ""
+    value = UnsupportedCell()
     if mincol == 0
         mincol = colnum(col)
     else
@@ -120,10 +124,12 @@ function readrow(row, shared_strings, styles)
         end
 
         ct = attribute(c, "t")
-        if ct == "s"
-            value = content(find_element(c, "v"))
+        value = content(find_element(c, "v"))
+        if ct == "s" #Shared string
             idx = parse(Int64, value)
             value = shared_strings[idx + 1]
+        elseif ct == "b" #Boolean
+            value = Bool(parse(Int64, value))
         end
     end
 

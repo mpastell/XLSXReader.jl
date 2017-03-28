@@ -12,6 +12,7 @@ Currently reads:
 * Floats and Integers
 * Strings
 * Basic date formats
+* Booleans
 
 ## Usage
 

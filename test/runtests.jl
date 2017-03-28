@@ -29,6 +29,6 @@ sdf = readxlsx("datasets/testsets.xlsx", "sharedstrings")
 @test Array(sdf[1,:])[1,:] == ["string", "style", "text"]
 
 #Test booleans, empty cols and NA header
-#using XLSXReader; b = readxlsx("test/datasets/testsets.xlsx", "booleans")
 bdf = readxlsx("datasets/testsets.xlsx", "booleans")
 @test names(bdf) == Symbol[:boolcol, :x1, :moredata]
+@test bdf[:boolcol] == [true, false, true, false, false]
