@@ -14,8 +14,8 @@ Currently reads:
 ## Usage
 
 ```julia
-usign XLSXReader
-read_xlsx("file.xslx") # Reads first sheet
-read_xlsx("file.xslx", 2) # Read by sheet number
-read_xlsx("file.xslx", "sheet4") # Read by sheet name
+using XLSXReader
+read_xlsx("file.xlsx") # Reads first sheet
+read_xlsx("file.xlsx", 2) # Read by sheet number
+read_xlsx("file.xlsx", "sheet4") # Read by sheet name
 ```
