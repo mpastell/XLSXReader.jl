@@ -131,6 +131,8 @@ function readrow(row, shared_strings, styles)
         elseif ct == "b" #Boolean
             value = Bool(parse(Int64, value))
         end
+    else
+        value = NA
     end
 
     res[col] = value
