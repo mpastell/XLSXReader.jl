@@ -218,7 +218,7 @@ function wsarray2df(wsarray, header::Bool = true)
     df = DataFrame()
     if header
         colstr = wsarray[1,:]
-        colstr[isna(colstr)] = ["x"] .* string.(1:sum(isna(colstr)))
+        colstr[isna.(colstr)] = ["x"] .* string.(1:sum(isna.(colstr)))
         colnames = make_colname.(colstr)
     else
         colnames = Symbol.(["x"] .* string.(1:ncols))
