@@ -2,13 +2,13 @@ __precompile__()
 module XLSXReader
 using ZipFile, LightXML, DataArrays, DataFrames
 
-immutable WorkSheet
+struct WorkSheet
     name::String
     idx::Int64
 end
 
 #Used as return value for cells with unsupported type
-immutable UnsupportedCell end
+struct UnsupportedCell end
 
 export readxlsx
 
