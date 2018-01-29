@@ -132,7 +132,7 @@ function readrow(row, shared_strings, styles)
             value = Bool(parse(Int64, value))
         end
     else
-        value = NA
+        value = missing
     end
 
     res[col] = value
@@ -218,7 +218,7 @@ function wsarray2df(wsarray, header::Bool = true)
     df = DataFrame()
     if header
         colstr = wsarray[1,:]
-        colstr[isna.(colstr)] = ["x"] .* string.(1:sum(isna.(colstr)))
+        colstr[Bool.(ismissing.(colstr))] = ["x"] .* string.(1:sum(ismissing.(colstr)))
         colnames = make_colname.(colstr)
     else
         colnames = Symbol.(["x"] .* string.(1:ncols))
