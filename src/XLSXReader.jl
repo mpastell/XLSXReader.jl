@@ -97,6 +97,8 @@ function formatcell(c, styles)
     # 14-22 are date formats
     if fmt ≥ 14 && fmt ≤ 22 #Date
         return DateTime(Dates.unix2datetime((nvalue - 25569) * 86400))
+    elseif fmt == 165 #Date format Finnish
+        return DateTime(Dates.unix2datetime((nvalue - 25569) * 86400))
     else
         return nvalue
     end
