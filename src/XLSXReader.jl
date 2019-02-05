@@ -192,7 +192,7 @@ function ws2array(cells, mincol::Int, maxcol::Int, skip::Int = 0)
     n = length(cells)
     ncols = 1 + maxcol - mincol
     wsarray = Array{Any}(undef, n - skip, ncols)
-    wsarray .= Missing
+    wsarray .= missing
     j = 1
     for i in (skip+1):n
         row = cells[i]
