@@ -11,7 +11,12 @@ end
 #Used as return value for cells with unsupported type
 struct UnsupportedCell end
 
-export readxlsx
+export readxlsx, excel2datetime
+
+"""Convert from Excel date time formats to Julia DateTime"""
+function excel2datetime(x::Float64)
+    return DateTime(Dates.unix2datetime((x - 25569) * 86400))
+end
 
 #sheets = filter(x-> contains(x, "xl/worksheets/"), fnames)
 function get_sharedstrings(file::String)
